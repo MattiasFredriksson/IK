@@ -7,7 +7,7 @@
 Proj/
 
 # Other
-
+*.stackdump
 external/
 
 #Non-cmake req. files
