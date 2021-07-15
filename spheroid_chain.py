@@ -7,6 +7,7 @@ from other.funcs import verify, make_callable, run_test
 from optimizers.gauss_newton import solve_GN
 from optimizers.levenberg_marquardt import solve_LM
 
+
 def spheroid_config(q, B):
     ''' Compute relevant system configuration parameters.
 
@@ -16,7 +17,9 @@ def spheroid_config(q, B):
     B:  Rigid body parameters defined by the set [[Rc, pc], ...], containing:
          constant rotation offset, and
          constant translation offset (both defined relative to the parent joint).
+
     Returns:
+    ----
         P:  Joint positions in task space on form (m, 3).
         W:  Joint rotation axis W in task space on form (m, 3).
         R:  Rotation matrix for the last joint.
@@ -41,6 +44,7 @@ def spheroid_config(q, B):
             j += 1
     return P, W, R, c
 
+
 def spheroid_Jres(q, B, O, S):
     ''' Compute both Jacobian J and system residual r for the link chain of spheroid joints.
     '''
@@ -58,6 +62,7 @@ def spheroid_Jres(q, B, O, S):
     J = np.concatenate((J_pt[:, :, 0].T, W.T), axis=0)
     return J, r
 
+
 def spheroid_E(q, B, O):
     ''' Compute end effector position and orientation.
     '''
@@ -65,6 +70,7 @@ def spheroid_E(q, B, O):
     # Unpack EE
     p_e, w_e = O
     return R @ p_e + c, mat.skew_vector(mat.log(R @ mat.exp(w_e)))[:, np.newaxis]
+
 
 #
 #   Testing helper functions
@@ -82,12 +88,13 @@ def make_test_system(M):
     B = [[Rc, pc] for Rc, pc in zip(RRc, Pc)]
     # End effector offsets.
     oa = rng.angle()
-    O = (rng.rnd_cvec(limit=0.1), rng.cnorm()*oa)
+    O = (rng.rnd_cvec(limit=0.1), rng.cnorm() * oa)
     Qs = rng.rnd_a(M * 3)       # Angle (final configuration).
 
     S = spheroid_E(Qs, B, O)
 
     return B, O, S, Qs
+
 
 #
 #   Test: Compare numerical with analytical Jacobian.
@@ -100,13 +107,12 @@ def test_compare_numerical_J(M, **sys_kwargs):
     M:  Number of system end effectors.
     '''
     B, O, S, As = make_test_system(M, **sys_kwargs)
-     # Angle (init).
+    # Angle (init).
     Q = rng.rnd_a(M * 3)
 
     P, W, R, c = spheroid_config(Q, B)
     p_e, w_e = O
     R = R @ mat.exp(w_e)
-
 
     Ja, r = spheroid_Jres(Q, B, O, S)
 
@@ -127,6 +133,7 @@ def test_compare_numerical_J(M, **sys_kwargs):
            smsg=None,
            atol=5e-6)
 
+
 #
 #   Test: Optimization convergence (analytical)
 #
@@ -137,7 +144,7 @@ def test_optimization(M, angle_std=0.1, **sys_kwargs):
     M:  Number of system DoF.
     '''
     B, O, S, Qs = make_test_system(M, **sys_kwargs)
-     # Angle (init).
+    # Angle (init).
     if angle_std > 0:
         Q = Qs + rng.normal(Qs.shape, std=angle_std)
     else:
@@ -161,7 +168,7 @@ def test_optimization(M, angle_std=0.1, **sys_kwargs):
 #   Run tests
 #
 RUN_JAC_TEST = True
-RUN_OPTN_TEST= True
+RUN_OPTN_TEST = True
 
 # Optimization tests
 ##

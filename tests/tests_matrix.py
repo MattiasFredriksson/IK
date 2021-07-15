@@ -1,12 +1,17 @@
 import sys
 import os
 import numpy as np
-
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-import mathf.rng as rng
-import mathf.matrix as mat
-import mathf.numerical as numer
-from other.funcs import verify
+try:
+    from mathf import rng as rng
+    from mathf import matrix as mat
+    from mathf import numerical as numer
+    from other.funcs import verify
+except ImportError as e:
+    sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+    from mathf import rng as rng
+    from mathf import matrix as mat
+    from mathf import numerical as numer
+    from other.funcs import verify
 
 N = 1000
 R = rng.rnd_R(N)
@@ -47,15 +52,15 @@ verify(I, I_t, 'Mismatch in R @ R^t in %i', 'Success: matrix.transpose()!')
 #
 # Skew X
 K = mat.skew_matrix([1, 0, 0])
-K_ref = np.array([[0,0,0], [0,0,-1], [0,1,0]])
+K_ref = np.array([[0, 0, 0], [0, 0, -1], [0, 1, 0]])
 verify(K, K_ref, smsg='Success: skew X')
 # Skew Y
 K = mat.skew_matrix([0, 1, 0])
-K_ref = np.array([[0,0,1], [0,0,0], [-1,0,0]])
+K_ref = np.array([[0, 0, 1], [0, 0, 0], [-1, 0, 0]])
 verify(K, K_ref, smsg='Success: skew Y')
 # Skew Z
 K = mat.skew_matrix([0, 0, 1])
-K_ref = np.array([[0,-1,0], [1,0,0], [0,0,0]])
+K_ref = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 0]])
 verify(K, K_ref, smsg='Success: skew Z')
 
 #
@@ -110,7 +115,6 @@ K_exp = mat.integrate(mat.skew_vector(K))
 verify(R, K_exp, smsg='Success: exp(log(R)) == R')
 
 
-
 ##
 #   Check log() for rotations of pi around unit axes
 ##
@@ -150,7 +154,6 @@ Zi = np.array([
     [0, 0, 1]
 ])
 verify(mat.log(Zi @ mat.inv(Z)), mat.skew_matrix([[0, 0, np.pi]]))
-
 
 
 #

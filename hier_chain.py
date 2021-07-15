@@ -8,8 +8,6 @@ from optimizers.gauss_newton import solve_GN
 from optimizers.levenberg_marquardt import solve_LM
 
 
-
-
 #
 #   Algorithms for the link chain hierarchy
 #
@@ -99,8 +97,8 @@ def hier_Jacobian(W, E, I):
     n = E.shape[0]
     J = np.empty((n * 3, len(W)))
     for j, (w, d, R, c) in enumerate(W):
-        X = (E - c.T) @ mat.skew_matrix(-w) + d.T  #  (E - c.T) @ [w].T
-        J[:, j] = (X * I[j:j+1, :].T).ravel()       #  (X * I @ 1^T)
+        X = (E - c.T) @ mat.skew_matrix(-w) + d.T  # (E - c.T) @ [w].T
+        J[:, j] = (X * I[j:j + 1, :].T).ravel()      # (X * I @ 1^T)
 
     return J
 
@@ -153,10 +151,14 @@ def hier_Jres(q, B, O, S):
     I = hier_I(B, O)
     return hier_Jacobian(W, E, I), residual(E, S).reshape(-1, 1)
 
+
 #
 #   Testing helper functions
 #
-def make_test_system(N, M, rng_jpi=False, rnd_axis=False, rnd_prism=False, rnd_both=False, rnd_eei=False, rnd_rotc=False):
+def make_test_system(N, M,
+                     rng_jpi=False, rnd_axis=False,
+                     rnd_prism=False, rnd_both=False,
+                     rnd_eei=False, rnd_rotc=False):
     ''' Create a test system.
 
     Args:
@@ -254,7 +256,6 @@ def test_compare_chain_I(N, M):
     verify(Ic.T, Ih, 'Mismatch between chain_I and hier_I in %i rows.', None)
 
 
-
 #
 #   Test: Compare numerical with analytical Jacobian.
 #
@@ -266,7 +267,7 @@ def test_compare_numerical_J(N, M, **sys_kwargs):
     M:  Number of system end effectors.
     '''
     B, O, S, As = make_test_system(N, M, **sys_kwargs)
-     # Angle (init).
+    # Angle (init).
     A = rng.rnd_a(N)
 
     Ja = compute_Jsys(A, B, O)
@@ -286,7 +287,7 @@ def test_optimization(N, M, angle_std=0.1, **sys_kwargs):
     M:  Number of system end effectors.
     '''
     B, O, S, As = make_test_system(N, M, **sys_kwargs)
-     # Angle (init).
+    # Angle (init).
     if angle_std <= 0:
         A = rng.rnd_a(N)
     else:
@@ -311,7 +312,7 @@ def test_optimization(N, M, angle_std=0.1, **sys_kwargs):
 #
 RUN_JAC_TEST = True
 RUN_OPT6_TEST = True
-RUN_OPTN_TEST= True
+RUN_OPTN_TEST = True
 
 # Test I
 ##
@@ -342,33 +343,32 @@ if RUN_JAC_TEST:
                      tname='Ja == Jn, %i, %i, rnd_prism:rnd_eei' % (N, M))
 
 
-
 # Optimization tests
 ##
 if RUN_OPT6_TEST:
     estd = 0.4
     # Single serial chain with 6 DoF and all ee at end:
     for M in range(1, 6):
-        run_test(lambda: test_optimization(6, M, angle_std=estd), tname='Analytical optimization, %i, %i' % (6, M))
+        run_test(lambda: test_optimization(6, M, angle_std=estd),
+                 tname='Analytical optimization, %i, %i' % (6, M))
 
     ##
     # Hierarchy 6 DoF chain with randomly assign ee
     for M in range(3, 12):
-        F = lambda: test_optimization(6, M, angle_std=estd, rng_jpi=True, rnd_eei=True)
-        run_test(F, tname='Analytical optimization of %i, %i system (rng_jpi:rnd_eei)' % (6, M))
+        run_test(lambda: test_optimization(6, M, angle_std=estd, rng_jpi=True, rnd_eei=True),
+                 tname='Analytical optimization of %i, %i system (rng_jpi:rnd_eei)' % (6, M))
 
     ##
     # Hierarchy 6 DoF chain with randomly assign ee and prismatic joints
     for M in range(3, 12):
-        F = lambda: test_optimization(6, M, angle_std=estd, rng_jpi=True, rnd_prism=True, rnd_eei=True)
-        run_test(F, tname='Analytical optimization of %i, %i system (rng_jpi:rnd_prism:rnd_eei)' % (6, M))
-
+        run_test(lambda: test_optimization(6, M, angle_std=estd, rng_jpi=True, rnd_prism=True, rnd_eei=True),
+                 tname='Analytical optimization of %i, %i system (rng_jpi:rnd_prism:rnd_eei)' % (6, M))
 
     ##
     # Hierarchy 6 DoF chain with randomly assign ee and screw joints
     for M in range(3, 12):
-        F = lambda: test_optimization(6, M, angle_std=estd, rng_jpi=True, rnd_both=True, rnd_eei=True)
-        run_test(F, tname='Analytical optimization of %i, %i system (rng_jpi:rnd_both:rnd_eei)' % (6, M))
+        run_test(lambda: test_optimization(6, M, angle_std=estd, rng_jpi=True, rnd_both=True, rnd_eei=True),
+                 tname='Analytical optimization of %i, %i system (rng_jpi:rnd_both:rnd_eei)' % (6, M))
 
 
 if RUN_OPTN_TEST:
@@ -377,5 +377,5 @@ if RUN_OPTN_TEST:
     # Hierarchy 8-14 DoF chain with randomly assigned 12 ee and prismatic joints
     for N in range(8, 14):
         M = 12
-        F = lambda: test_optimization(N, M, angle_std=estd, rng_jpi=True, rnd_prism=True, rnd_eei=True)
-        run_test(F, tname='Analytical optimization of %i, %i system (rng_jpi:rnd_prism:rnd_eei)' % (N, M))
+        run_test(lambda: test_optimization(N, M, angle_std=estd, rng_jpi=True, rnd_prism=True, rnd_eei=True),
+                 tname='Analytical optimization of %i, %i system (rng_jpi:rnd_prism:rnd_eei)' % (N, M))

@@ -1,10 +1,8 @@
 import numpy as np
 
 
-
-
 def solve_LM(Jr, x0, regu=1e-4, max_iter=100, eps=1e-8, seps=1e-11, rcond=1e-11, scale_invariant=False, **kwargs):
-    ''' Solve the non-linear system using Gauss-Newton method.
+    ''' Solve the non-linear system using Levenberg Marquardt method.
 
     Args:
     ----
@@ -21,21 +19,22 @@ def solve_LM(Jr, x0, regu=1e-4, max_iter=100, eps=1e-8, seps=1e-11, rcond=1e-11,
     '''
 
     x = x0
+
     def res(y):
         return np.linalg.norm(y)
 
     for i in range(max_iter):
-        # Compute residual error
+        # Compute error residual
         A, y = Jr(x)
         r = res(y)
-        if r < eps: # Euclidean norm
+        if r < eps:
             break
 
         # Solve in lstsq sence:
         ATA = A.T @ A
-        if scale_invariant: # Fletcher modification for scale invariance
+        if scale_invariant:  # Fletcher modification for scale invariance
             D = ATA + regu * np.diag(ATA)
-        else: # Normal
+        else:  # Normal
             D = ATA + regu * np.eye(A.shape[-1])
         delta, __, __, __ = np.linalg.lstsq(D, A.T @ y, rcond=rcond)
         # Update

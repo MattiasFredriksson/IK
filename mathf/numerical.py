@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def forw(q, F, i=1, h=1e-7):
     ''' Compute the numerical forward differential.
 
@@ -30,6 +31,7 @@ def cent(q, F, i=1, h=1e-6):
         Numerical differential of F with respect to the i:th element of q: dF(q)/dq_i.
     '''
     return (F(q + h * i) - F(q - h * i)) / (2 * h)
+
 
 def cent2(q, F, i, j, h=1e-6):
     ''' Compute the second order (F'') numerical central/symetric differential.
@@ -72,6 +74,7 @@ def Jacobian(F, q, N=cent):
 
     return np.concatenate(J, axis=-1)       # list -> matrix: |dF(q)/dq_0, dF(q)/dq_1, ..|
 
+
 def Hessian(F, q, N=cent2, h=1e-6):
     ''' Compute the Hessian numerically.
 
@@ -100,6 +103,7 @@ def Hessian(F, q, N=cent2, h=1e-6):
         return H[0]
     return H
 
+
 def PDH(H):
     ''' Uses Sylvester's criterion to determine if a non-singular symmetric real matrix is positive definite.
     '''
@@ -113,6 +117,7 @@ def PDH(H):
         for i in range(n):
             D[h, i] = np.linalg.det(H[h, :i, :i])
     return np.all(D > 0)
+
 
 def issingular(M, eps=1e-7):
     ''' Determine if matrices in M are singular.

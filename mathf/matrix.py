@@ -2,14 +2,23 @@ import numpy as np
 from scipy.spatial.transform import Rotation as rot
 EPS = 1e-7
 
+
 def makeN(V):
     return np.reshape(V, (-1, ))
+
+
 def makeN1(V):
     return np.reshape(V, (-1, 1))
+
+
 def makeN3(V):
     return np.reshape(V, (-1, 3))
+
+
 def makeN31(V):
     return np.reshape(V, (-1, 3, 1))
+
+
 def makeN33(V):
     return np.reshape(V, (-1, 3, 3))
 
@@ -19,6 +28,7 @@ def make_col(v):
     if sh[-1] != 1:
         return np.reshape(v, (*sh, 1))
     return v
+
 
 def element(V, i):
     ''' Fetch the i:th element from vector(s) V.
@@ -39,11 +49,14 @@ def column(M, i):
         return M[:, :, i]
     return M[:, i]
 
+
 def inv(T):
     return np.linalg.inv(T)
 
+
 def transpose(R):
     return np.transpose(R, axes=(0, 2, 1))
+
 
 def normalize(k):
     sh = np.shape(k)
@@ -51,6 +64,7 @@ def normalize(k):
         return 1.0 / np.linalg.norm(k, axis=-2, keepdims=True) * k
     else:
         return 1.0 / np.linalg.norm(k, axis=-1, keepdims=True) * k
+
 
 def cross(a, b):
     sh = np.shape(a)
@@ -62,6 +76,7 @@ def cross(a, b):
         return np.cross(a, b, axisa=-1, axisb=-1)
     else:
         raise ValueError("Can't handle shape %s" % str(sh))
+
 
 def dot(a, b):
     sh = np.shape(a)
@@ -78,11 +93,14 @@ def dot(a, b):
 def RX(a):
     return rot.from_euler('x', a).as_matrix()
 
+
 def RY(a):
     return rot.from_euler('y', a).as_matrix()
 
+
 def RZ(a):
     return rot.from_euler('z', a).as_matrix()
+
 
 def skew_matrix(k, a=None):
     ''' k -> K
@@ -106,6 +124,7 @@ def skew_matrix(k, a=None):
         return np.reshape(K, (*sh[:-2], 3, 3))
     return np.reshape(K, (*sh[:-1], 3, 3))
 
+
 def skew_vector(K):
     ''' K -> k
     '''
@@ -121,8 +140,10 @@ def skew_vector(K):
     else:
         return k
 
+
 def skew_vectorc(K):
     return skew_vector(K)[:, :, np.newaxis]
+
 
 def logarithm(R, eps=EPS):
     ''' Logarithm of rotation matrix in SO3, returning the skew matrix for ak.
@@ -177,11 +198,14 @@ def logarithm(R, eps=EPS):
 
     return K.reshape(sh)
 
+
 def log(R):
     return logarithm(R)
 
+
 def log_so(R):
     return logarithm(R)
+
 
 def integrate(k, a=None):
     ''' Rodrigues formula.
@@ -216,13 +240,13 @@ def integrate(k, a=None):
         K = makeN33(k)
 
     # Rodrigues formula
-    I = np.eye(3)
     KK = np.matmul(K, K)
     if K.ndim > 2:
         a = a[:, :, np.newaxis]
-    R = I + np.sin(a) * K + (1 - np.cos(a)) * KK
+    R = np.eye(3) + np.sin(a) * K + (1 - np.cos(a)) * KK
     # Return result in original form
     return np.reshape(R, (*sh_n, 3, 3))
+
 
 def exp(k, a=None):
     return integrate(k, a)
@@ -239,6 +263,7 @@ def make_angle_skew3(rotation):
         skewm = skew_matrix(rotvec)
     a = np.linalg.norm(rotvec, axis=-1)[:, np.newaxis, np.newaxis]
     return a, skewm
+
 
 def angv2dso_M(rotation):
     ''' Generate linear maps for converting the geometric Jacobian to the analytical Jacobian for rotation vectors.
@@ -296,12 +321,14 @@ def dso2angv(rotation, drotvec):
     A = dso2angv_M(rotation)
     return np.reshape(A @ drotvec, sh)
 
+
 def angv2dso(rotvec, angv):
     sh = np.shape(angv)
     angv = makeN31(angv)
 
     A = angv2dso_M(rotvec)
     return np.reshape(A @ angv, sh)
+
 
 # SE3
 def log_se_Rp(R, p):
@@ -330,6 +357,7 @@ def log_se_Rp(R, p):
     v = p / a + Ginv @ p
     v = np.concatenate([so3 / a, v[:, :, 0]], axis=-1)
     return np.reshape(v, [*ldims, 6]), np.reshape(a, [*ldims, 1])
+
 
 def log_se(T, p=None):
     if p is None:

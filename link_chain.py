@@ -6,6 +6,8 @@ import mathf.numerical as numer
 from other.funcs import verify, make_callable, run_test
 from optimizers.gauss_newton import solve_GN
 from optimizers.levenberg_marquardt import solve_LM
+
+
 #
 #   Single connected link chain algorithms
 #
@@ -69,10 +71,10 @@ def compute_J(W, E, I):
     E:      End effector positions on form NxM for each of the N end effectors and M joints.
     I:      Index matrix I mapping the joint associated with each end effector.
     '''
-    J = np.empty((3*E.shape[0], len(W)))
+    J = np.empty((3 * E.shape[0], len(W)))
     for j, (w, R, c) in enumerate(W):
-        X = (E - c.T) @ mat.skew_matrix(-w)   #  (E - c.T) @ [w].T
-        J[:, j] = (X * (j <= I)).ravel()        #  (X * I @ 1^T)
+        X = (E - c.T) @ mat.skew_matrix(-w)   # (E - c.T) @ [w].T
+        J[:, j] = (X * (j <= I)).ravel()      # (X * I @ 1^T)
     return J
 
 
@@ -114,6 +116,7 @@ def compute_Jsys(q, B, O):
     E = compute_E(W, O)
     I = compute_I(O)
     return compute_J(W, E, I)
+
 
 def compute_Jres(q, B, O, S):
     ''' Combined computation of the Jacobian J and system residual r.
@@ -188,7 +191,7 @@ def test_optimization(N, M, angle_std=0.5, **sys_kwargs):
     M:  Number of system end effectors.
     '''
     B, O, S, As = make_test_system(N, M, **sys_kwargs)
-     # Angle (init).
+    # Angle (init).
     if angle_std <= 0:
         A = rng.rnd_a(N)
     else:
@@ -221,11 +224,13 @@ OPT_TEST = True
 if JAJN_TEST:
     for N in range(6, 8):
         for M in range(1, 4):
-            run_test(lambda: test_compare_numerical_J(N, M), tname='Ja == Jn, %i, %i' % (N, M))
+            run_test(lambda: test_compare_numerical_J(N, M),
+                     tname='Ja == Jn, %i, %i' % (N, M))
 
     for N in range(6, 8):
         for M in range(1, 12):
-            run_test(lambda: test_compare_numerical_J(N, M, rnd_eei=True), tname='Ja == Jn, %i, %i, rnd_eei' % (N, M))
+            run_test(lambda: test_compare_numerical_J(N, M, rnd_eei=True),
+                     tname='Ja == Jn, %i, %i, rnd_eei' % (N, M))
 
     for M in range(1, 12):
         run_test(lambda: test_optimization(6, M), tname='Analytical optimization, %i, %i' % (6, M))
@@ -235,4 +240,5 @@ if OPT_TEST:
     print('Optimization 6 DoF + random ee distribution')
     print('----')
     for M in range(1, 12):
-        run_test(lambda: test_optimization(6, M, rnd_eei=True), tname='Analytical optimization, %i, %i, rnd_eei' % (6, M))
+        run_test(lambda: test_optimization(6, M, rnd_eei=True),
+                 tname='Analytical optimization, %i, %i, rnd_eei' % (6, M))
